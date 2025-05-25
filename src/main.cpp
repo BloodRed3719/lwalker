@@ -67,16 +67,17 @@ int main(void)
     list<Enemy> enemies;
     int money = 0;
     bool isInSkillTreeChoosingScreen = false;
-    int attackCooldown = 2;
-    float timeSinceLastAttack = 0;
-    bool isAttacking = false;
-    double attackVisualStartTime = 0.0;
 
     int plusOneUpgradeCost = 10;
     int plusTwoUpgradeCost = 20;
 
     bool hasPlusOneEnemiesUpgrade = false;
     bool hasPlusTwoEnemiesUpgrade = true;
+
+    double attackCooldown = 2.0;
+    double lastAttackTime = 0.0;
+    double attackVisualStartTime = -10.0;
+    bool isAttacking = false;
 
     SetTargetFPS(60);
 
@@ -128,26 +129,25 @@ int main(void)
             DrawRectangleRounded({x, y, w, h}, 0.2f, 0, BLUE);
             Rectangle mouseRect = {mousePos.x - (mouseW / 2), mousePos.y - (mouseH / 2), mouseW, mouseH};
 
-            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && GetTime() - timeSinceLastAttack >= attackCooldown) {
-                isAttacking = true;
+            if (GetTime() - lastAttackTime >= attackCooldown) {
+                lastAttackTime = GetTime();
                 attackVisualStartTime = GetTime();
-                timeSinceLastAttack = GetTime();
-                cout << "attack!!!" << endl;
+                isAttacking = true;
             }
 
             if (isAttacking) {
-                DrawRectangleRounded({mousePos.x - 25, mousePos.y - 25, 50, 50}, 0.2, 0, RED);
-                if (GetTime() - attackVisualStartTime >= 1.0) {
-                    isAttacking = false;
-                }
-            }
-
-            for (auto it = enemies.begin(); it != enemies.end();) {
+                if (GetTime() - attackVisualStartTime < 1.0) {
+                    DrawRectangleRounded({mousePos.x - (int)12.5, mousePos.y - (int)12.5, 25, 25}, 0.2, 0, RED);
+                    for (auto it = enemies.begin(); it != enemies.end();) {
                 if (CheckCollisionRecs(mouseRect, it->rect)) {
                     it = enemies.erase(it);
                     money += 1;
                 } else {
                     ++it;
+                }
+            }
+                } else {
+                    isAttacking = false;
                 }
             }
 
@@ -185,7 +185,7 @@ int main(void)
                 shouldUpdateTime = true;
                 isInSkillTreeChoosingScreen = false;
             }
-        }  else if (!shouldUpdateTime and isInSkillTreeChoosingScreen) {
+        } else if (!shouldUpdateTime and isInSkillTreeChoosingScreen) {
             DrawText("Press B to go back to the game", width - 350, height - 50, 20, BLACK);
             if (!hasPlusOneEnemiesUpgrade) {
                 plusOneEnemies.Draw();
