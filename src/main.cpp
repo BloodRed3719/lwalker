@@ -19,12 +19,24 @@ int main(void)
     button.y = 50;
     button.w = 150;
     button.h = 50;
-    button.text = "Click me!";
+    button.color = (Color)RED;
+    button.textColor = (Color)BLACK;
+    button.textSize = 20;
+    button.text = "Enemy Amount\nSkill Tree";
+    button.xpad = 50;
+
     button.xpad = button.x / 2;
     button.ypad = button.y / 2 - 5;
     button.color = (Color)RED;
     button.textColor = (Color)BLACK;
     button.textSize = 20;
+
+    Button attackSpeedButton = Button();
+    attackSpeedButton.x = 200;
+    attackSpeedButton.y = 50;
+    attackSpeedButton.w = 150;
+    attackSpeedButton.h = 50;
+    attackSpeedButton.text = "Attack Speed Skill Tree";
 
     Button plusOneEnemies = Button();
     plusOneEnemies.x = width / 2 - 50;
@@ -166,7 +178,6 @@ int main(void)
         } else if (!shouldUpdateTime and !isInSkillTreeChoosingScreen) {
             DrawText("Press B to go back to the game", width - 350, height - 50, 20, BLACK);
             button.Draw();
-            button.text = "Skill tree";
             if (button.CheckClick(mousePos.x, mousePos.y)) {
                 isInSkillTreeChoosingScreen = true;
             }
