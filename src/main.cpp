@@ -68,6 +68,9 @@ int main(void)
     list<Enemy> enemies;
     int money = 0;
     bool isInSkillTreeChoosingScreen = false;
+    int attackCooldown = 2;
+    float timeSinceLastAttack = 0;
+    
 
     int plusOneUpgradeCost = 10;
     int plusTwoUpgradeCost = 20;
