@@ -50,7 +50,6 @@ int main(void)
     plusTwoEnemies.xpad = 20;
     plusTwoEnemies.ypad = 10;
 
-
     SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_HIGHDPI);
     InitWindow(width, height, "Loopwalker");
     Color dark_green = Color{20, 160, 133, 255};
@@ -70,7 +69,8 @@ int main(void)
     bool isInSkillTreeChoosingScreen = false;
     int attackCooldown = 2;
     float timeSinceLastAttack = 0;
-    
+    bool isAttacking = false;
+    double attackVisualStartTime = 0.0;
 
     int plusOneUpgradeCost = 10;
     int plusTwoUpgradeCost = 20;
@@ -127,6 +127,21 @@ int main(void)
         if (shouldUpdateTime) {
             DrawRectangleRounded({x, y, w, h}, 0.2f, 0, BLUE);
             Rectangle mouseRect = {mousePos.x - (mouseW / 2), mousePos.y - (mouseH / 2), mouseW, mouseH};
+
+            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && GetTime() - timeSinceLastAttack >= attackCooldown) {
+                isAttacking = true;
+                attackVisualStartTime = GetTime();
+                timeSinceLastAttack = GetTime();
+                cout << "attack!!!" << endl;
+            }
+
+            if (isAttacking) {
+                DrawRectangleRounded({mousePos.x - 25, mousePos.y - 25, 50, 50}, 0.2, 0, RED);
+                if (GetTime() - attackVisualStartTime >= 1.0) {
+                    isAttacking = false;
+                }
+            }
+
             for (auto it = enemies.begin(); it != enemies.end();) {
                 if (CheckCollisionRecs(mouseRect, it->rect)) {
                     it = enemies.erase(it);
@@ -168,7 +183,8 @@ int main(void)
                 x = 50;
                 y = height / 2;
                 shouldUpdateTime = true;
-                isInSkillTreeChoosingScreen = false;}
+                isInSkillTreeChoosingScreen = false;
+            }
         }  else if (!shouldUpdateTime and isInSkillTreeChoosingScreen) {
             DrawText("Press B to go back to the game", width - 350, height - 50, 20, BLACK);
             if (!hasPlusOneEnemiesUpgrade) {
@@ -192,7 +208,6 @@ int main(void)
                 shouldUpdateTime = true;
                 x = 50;
                 y = height / 2;
-                
             }
             if (IsKeyDown(KEY_B)) {
                 for (int i = 0; i < num_of_enemies_to_spawn; i++) {
@@ -233,7 +248,6 @@ int main(void)
                 }
             }
         }
-
 
         EndDrawing();
     }
