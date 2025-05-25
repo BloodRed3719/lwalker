@@ -112,7 +112,7 @@ int main(void)
 
     bool hasPlusOneEnemiesUpgrade = false;
     bool hasPlusTwoEnemiesUpgrade = true;
-    bool hasPlusFiveEnemiesUpgrade = true;
+    bool hasPlusFiveEnemiesUpgrade = false;
     bool hasPlusQuarterSecondAttackSpeed = false;
     bool hasPlusHalfSecondAttackSpeed = false;
 
