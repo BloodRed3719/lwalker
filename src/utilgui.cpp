@@ -9,8 +9,8 @@ Button::Button() {}
 Button::~Button() {}
 
 void Button::Draw() {
-	DrawRectangleRounded((Rectangle){x, y, w, h}, 0.2, 0, color);
-	DrawText(text.c_str(), x + xpad, y + ypad, textSize, textColor);
+    DrawRectangleRounded((Rectangle){x, y, w, h}, 0.2, 0, color);
+    DrawText(text.c_str(), x + xpad, y + ypad, textSize, textColor);
 }
 
 bool Button::CheckClick(float mousePosX, float mousePosY) {

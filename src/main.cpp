@@ -19,24 +19,24 @@ int main(void)
     button.y = 50;
     button.w = 150;
     button.h = 50;
-    button.color = (Color)RED;
-    button.textColor = (Color)BLACK;
-    button.textSize = 20;
     button.text = "Enemy Amount\nSkill Tree";
-    button.xpad = 50;
-
-    button.xpad = button.x / 2;
-    button.ypad = button.y / 2 - 5;
+    button.xpad = 5;
+    button.ypad = 5;
     button.color = (Color)RED;
     button.textColor = (Color)BLACK;
     button.textSize = 20;
 
     Button attackSpeedButton = Button();
-    attackSpeedButton.x = 200;
+    attackSpeedButton.x = 250;
     attackSpeedButton.y = 50;
     attackSpeedButton.w = 150;
     attackSpeedButton.h = 50;
-    attackSpeedButton.text = "Attack Speed Skill Tree";
+    attackSpeedButton.text = "Attack Speed\nSkill Tree";
+    attackSpeedButton.xpad = 5;
+    attackSpeedButton.ypad = 5;
+    attackSpeedButton.color = (Color)RED;
+    attackSpeedButton.textColor = (Color)BLACK;
+    attackSpeedButton.textSize = 20;
 
     Button plusOneEnemies = Button();
     plusOneEnemies.x = width / 2 - 50;
@@ -62,9 +62,32 @@ int main(void)
     plusTwoEnemies.xpad = 20;
     plusTwoEnemies.ypad = 10;
 
+    Button plusQuarterSecondAttackSpeed = Button();
+    plusQuarterSecondAttackSpeed.x = width / 2 - 50;
+    plusQuarterSecondAttackSpeed.y = 100;
+    plusQuarterSecondAttackSpeed.w = 150;
+    plusQuarterSecondAttackSpeed.h = 50;
+    plusQuarterSecondAttackSpeed.color = (Color)RED;
+    plusQuarterSecondAttackSpeed.textColor = (Color)BLACK;
+    plusQuarterSecondAttackSpeed.textSize = 20;
+    plusQuarterSecondAttackSpeed.text = "-0.25 second attack speed";
+    plusQuarterSecondAttackSpeed.xpad = 20;
+    plusQuarterSecondAttackSpeed.ypad = 10;
+
+    Button plusHalfSecondAttackSpeed = Button();
+    plusHalfSecondAttackSpeed.x = width / 2 - 50;
+    plusHalfSecondAttackSpeed.y = 200;
+    plusHalfSecondAttackSpeed.w = 150;
+    plusHalfSecondAttackSpeed.h = 50;
+    plusHalfSecondAttackSpeed.color = (Color)RED;
+    plusHalfSecondAttackSpeed.textColor = (Color)BLACK;
+    plusHalfSecondAttackSpeed.textSize = 20;
+    plusHalfSecondAttackSpeed.text = "-0.5 second attack speed";
+    plusHalfSecondAttackSpeed.xpad = 20;
+    plusHalfSecondAttackSpeed.ypad = 10;
+
     SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_HIGHDPI);
     InitWindow(width, height, "Loopwalker");
-    Color dark_green = Color{20, 160, 133, 255};
     double initTime = GetTime();
     double timeAtDeath = 0.0;
     float x = 50;
@@ -77,16 +100,23 @@ int main(void)
     float speed = 3;
     int num_of_enemies_to_spawn = 10;
     list<Enemy> enemies;
-    int money = 0;
+    int money = 200;
     bool isInSkillTreeChoosingScreen = false;
+    bool isInAttackSpeedSkillTreeChoosingScreen = false;
+    float attackSpeed = 1;
 
     int plusOneUpgradeCost = 10;
     int plusTwoUpgradeCost = 20;
+    int plusQuarterSecondAttackSpeedCost = 50;
+    int plusHalfSecondAttackSpeedCost = 150;
 
     bool hasPlusOneEnemiesUpgrade = false;
     bool hasPlusTwoEnemiesUpgrade = true;
+    bool hasPlusFiveEnemiesUpgrade = true;
+    bool hasPlusQuarterSecondAttackSpeed = false;
+    bool hasPlusHalfSecondAttackSpeed = false;
 
-    double attackCooldown = 2.0;
+    double attackCooldown = 1.0;
     double lastAttackTime = 0.0;
     double attackVisualStartTime = -10.0;
     bool isAttacking = false;
@@ -141,25 +171,25 @@ int main(void)
             DrawRectangleRounded({x, y, w, h}, 0.2f, 0, BLUE);
             Rectangle mouseRect = {mousePos.x - (mouseW / 2), mousePos.y - (mouseH / 2), mouseW, mouseH};
 
-            if (GetTime() - lastAttackTime >= attackCooldown) {
-                lastAttackTime = GetTime();
-                attackVisualStartTime = GetTime();
+            if (!isAttacking && GetTime() - lastAttackTime >= attackCooldown) {
                 isAttacking = true;
+                attackVisualStartTime = GetTime();
             }
 
             if (isAttacking) {
-                if (GetTime() - attackVisualStartTime < 1.0) {
+                if (GetTime() - attackVisualStartTime < attackSpeed) {
                     DrawRectangleRounded({mousePos.x - (int)12.5, mousePos.y - (int)12.5, 25, 25}, 1, 0, GREEN);
                     for (auto it = enemies.begin(); it != enemies.end();) {
-                if (CheckCollisionRecs(mouseRect, it->rect)) {
-                    it = enemies.erase(it);
-                    money += 1;
-                } else {
-                    ++it;
-                }
-            }
+                        if (CheckCollisionRecs(mouseRect, it->rect)) {
+                            it = enemies.erase(it);
+                            money += 1;
+                        } else {
+                            ++it;
+                        }
+                    }
                 } else {
                     isAttacking = false;
+                    lastAttackTime = GetTime();  // Reset cooldown timer here, when attack ends
                 }
             }
 
@@ -175,12 +205,18 @@ int main(void)
             if (IsKeyDown(KEY_D)) x += speed;
 
             DrawText(charTimeElapsed, width / 2, 50, 30, RED);
-        } else if (!shouldUpdateTime and !isInSkillTreeChoosingScreen) {
+        } else if (!shouldUpdateTime and !isInSkillTreeChoosingScreen and !isInAttackSpeedSkillTreeChoosingScreen) {
             DrawText("Press B to go back to the game", width - 350, height - 50, 20, BLACK);
             button.Draw();
+            attackSpeedButton.Draw();
             if (button.CheckClick(mousePos.x, mousePos.y)) {
                 isInSkillTreeChoosingScreen = true;
             }
+
+            if (attackSpeedButton.CheckClick(mousePos.x, mousePos.y)) {
+                isInAttackSpeedSkillTreeChoosingScreen = true;
+            }
+
             if (IsKeyDown(KEY_B)) {
                 for (int i = 0; i < num_of_enemies_to_spawn; i++) {
                     Enemy newEnemy = Enemy();
@@ -195,8 +231,9 @@ int main(void)
                 y = height / 2;
                 shouldUpdateTime = true;
                 isInSkillTreeChoosingScreen = false;
+                isInAttackSpeedSkillTreeChoosingScreen = false;
             }
-        } else if (!shouldUpdateTime and isInSkillTreeChoosingScreen) {
+        } else if (!shouldUpdateTime and isInSkillTreeChoosingScreen and !isInAttackSpeedSkillTreeChoosingScreen) {
             DrawText("Press B to go back to the game", width - 350, height - 50, 20, BLACK);
             if (!hasPlusOneEnemiesUpgrade) {
                 plusOneEnemies.Draw();
@@ -234,6 +271,7 @@ int main(void)
                 y = height / 2;
                 shouldUpdateTime = true;
                 isInSkillTreeChoosingScreen = false;
+                isInAttackSpeedSkillTreeChoosingScreen = false;
             }
 
             if (!hasPlusTwoEnemiesUpgrade) {
@@ -245,7 +283,7 @@ int main(void)
                 hasPlusTwoEnemiesUpgrade = true;
                 num_of_enemies_to_spawn += 2;
                 isInSkillTreeChoosingScreen = false;
-                shouldUpdateTime = false;
+                shouldUpdateTime = true;
                 x = 50;
                 y = height / 2;
                 for (int i = 0; i < num_of_enemies_to_spawn; i++) {
@@ -257,6 +295,71 @@ int main(void)
                     newEnemy.rect = {newEnemy.x, newEnemy.y, newEnemy.w, newEnemy.h};
                     enemies.push_back(newEnemy);
                 }
+            }
+        } else if (!shouldUpdateTime and !isInSkillTreeChoosingScreen and isInAttackSpeedSkillTreeChoosingScreen) {
+                        DrawText("Press B to go back to the game", width - 350, height - 50, 20, BLACK);
+
+            if (!hasPlusQuarterSecondAttackSpeed) {
+                plusQuarterSecondAttackSpeed.Draw();
+            }
+
+            if (plusQuarterSecondAttackSpeed.CheckClick(mousePos.x, mousePos.y) and money >= plusQuarterSecondAttackSpeedCost) {
+                money -= plusQuarterSecondAttackSpeedCost;
+                hasPlusQuarterSecondAttackSpeed = true;
+                attackCooldown -= 0.25;
+                isInAttackSpeedSkillTreeChoosingScreen = false;
+                shouldUpdateTime = true;
+                x = 50;
+                y = height / 2;
+                for (int i = 0; i < num_of_enemies_to_spawn; i++) {
+                    Enemy newEnemy = Enemy();
+                    newEnemy.x = GetRandomValue(150, width);
+                    newEnemy.y = GetRandomValue(0, height);
+                    newEnemy.w = 50;
+                    newEnemy.h = 50;
+                    newEnemy.rect = {newEnemy.x, newEnemy.y, newEnemy.w, newEnemy.h};
+                    enemies.push_back(newEnemy);
+                }
+            }
+
+            if (!hasPlusHalfSecondAttackSpeed) {
+                plusHalfSecondAttackSpeed.Draw();
+            }
+
+            if (plusHalfSecondAttackSpeed.CheckClick(mousePos.x, mousePos.y) and money >= plusHalfSecondAttackSpeedCost) {
+                money -= plusHalfSecondAttackSpeedCost;
+                hasPlusHalfSecondAttackSpeed = true;
+                attackCooldown -= 0.5;
+                isInAttackSpeedSkillTreeChoosingScreen = false;
+                shouldUpdateTime = true;
+                x = 50;
+                y = height / 2;
+                for (int i = 0; i < num_of_enemies_to_spawn; i++) {
+                    Enemy newEnemy = Enemy();
+                    newEnemy.x = GetRandomValue(150, width);
+                    newEnemy.y = GetRandomValue(0, height);
+                    newEnemy.w = 50;
+                    newEnemy.h = 50;
+                    newEnemy.rect = {newEnemy.x, newEnemy.y, newEnemy.w, newEnemy.h};
+                    enemies.push_back(newEnemy);
+                }
+            }
+
+            if (IsKeyDown(KEY_B)) {
+                for (int i = 0; i < num_of_enemies_to_spawn; i++) {
+                    Enemy newEnemy = Enemy();
+                    newEnemy.x = GetRandomValue(150, width);
+                    newEnemy.y = GetRandomValue(0, height);
+                    newEnemy.w = 50;
+                    newEnemy.h = 50;
+                    newEnemy.rect = {newEnemy.x, newEnemy.y, newEnemy.w, newEnemy.h};
+                    enemies.push_back(newEnemy);
+                }
+                x = 50;
+                y = height / 2;
+                shouldUpdateTime = true;
+                isInSkillTreeChoosingScreen = false;
+                isInAttackSpeedSkillTreeChoosingScreen = false;
             }
         }
 
