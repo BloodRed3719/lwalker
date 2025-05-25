@@ -137,7 +137,7 @@ int main(void)
 
             if (isAttacking) {
                 if (GetTime() - attackVisualStartTime < 1.0) {
-                    DrawRectangleRounded({mousePos.x - (int)12.5, mousePos.y - (int)12.5, 25, 25}, 0.2, 0, RED);
+                    DrawRectangleRounded({mousePos.x - (int)12.5, mousePos.y - (int)12.5, 25, 25}, 1, 0, GREEN);
                     for (auto it = enemies.begin(); it != enemies.end();) {
                 if (CheckCollisionRecs(mouseRect, it->rect)) {
                     it = enemies.erase(it);
