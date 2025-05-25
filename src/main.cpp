@@ -26,8 +26,6 @@ int main(void)
     button.textColor = (Color)BLACK;
     button.textSize = 20;
 
-    cout << "testing" << endl;
-
     Button plusOneEnemies = Button();
     plusOneEnemies.x = width / 2 - 50;
     plusOneEnemies.y = 100;
